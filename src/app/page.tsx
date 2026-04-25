@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Zap, ShieldCheck, Clock, Award, Star, MapPin, ChevronRight,
@@ -8,10 +7,11 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Language, translations, services, reviews, cities } from "@/data/content";
+import { translations, services, reviews, cities } from "@/data/content";
+import { useApp } from "@/context/AppContext";
 
 export default function HomePage() {
-  const [lang, setLang] = useState<Language>("en");
+  const { state: { lang } } = useApp();
   const t = translations[lang];
 
   const stats = [
@@ -58,7 +58,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar lang={lang} setLang={setLang} />
+      <Navbar />
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-28 pb-20">

@@ -7,24 +7,20 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Language, pricingCategories } from "@/data/content";
-
-interface CartItem {
-  name: string;
-  price: number;
-}
+import { pricingCategories } from "@/data/content";
+import { useApp } from "@/context/AppContext";
 
 export default function PricingPage() {
-  const [lang, setLang] = useState<Language>("en");
+  const { state: { lang, cart }, addToCart: ctxAddToCart, removeFromCart: ctxRemoveFromCart } = useApp();
+  const hi = lang === "hi";
   const [search, setSearch] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([]);
 
-  const addToCart = (name: string, price: number) => {
-    setCart((prev) => [...prev, { name, price }]);
+  const addToCart = (serviceId: string, name: string, price: number) => {
+    ctxAddToCart({ serviceId, serviceName: name, price });
   };
 
   const removeFromCart = (index: number) => {
-    setCart((prev) => prev.filter((_, i) => i !== index));
+    ctxRemoveFromCart(index);
   };
 
   const total = cart.reduce((s, i) => s + i.price, 0);
@@ -43,28 +39,28 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar lang={lang} setLang={setLang} />
+      <Navbar />
 
       <div className="flex-1 pt-20">
         {/* Header */}
         <div className="bg-gradient-to-br from-slate-900 to-slate-800 py-14">
           <div className="max-w-4xl mx-auto px-4 text-center text-white">
             <h1 className="text-4xl font-bold mb-3">
-              {lang === "en" ? "Fixed Price. Published. No Surprises." : "तय कीमत। प्रकाशित। कोई हैरानी नहीं।"}
+              {hi ? "तय कीमत। प्रकाशित। कोई हैरानी नहीं।" : "Fixed Price. Published. No Surprises."}
             </h1>
             <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-6">
-              {lang === "en"
-                ? "Every service has a fixed, published price. You see it before you book. No hidden charges. Ever."
-                : "हर सेवा की एक तय, प्रकाशित कीमत है। बुक करने से पहले देखें। कोई छुपी फीस नहीं। कभी नहीं।"}
+              {hi
+                ? "हर सेवा की एक तय, प्रकाशित कीमत है। बुक करने से पहले देखें। कोई छुपी फीस नहीं। कभी नहीं।"
+                : "Every service has a fixed, published price. You see it before you book. No hidden charges. Ever."}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               {[
-                { icon: "✅", label: lang === "en" ? "Prices visible before booking" : "बुकिंग से पहले कीमत दिखती है" },
-                { icon: "✅", label: lang === "en" ? "No visit charges" : "कोई विजिट चार्ज नहीं" },
-                { icon: "✅", label: lang === "en" ? "Materials shown separately" : "सामग्री अलग से दिखाई जाती है" },
+                { icon: "✅", en: "Prices visible before booking", hi: "बुकिंग से पहले कीमत दिखती है" },
+                { icon: "✅", en: "No visit charges", hi: "कोई विजिट चार्ज नहीं" },
+                { icon: "✅", en: "Materials shown separately", hi: "सामग्री अलग से दिखाई जाती है" },
               ].map((i) => (
-                <span key={i.label} className="text-slate-300">
-                  {i.icon} {i.label}
+                <span key={i.en} className="text-slate-300">
+                  {i.icon} {hi ? i.hi : i.en}
                 </span>
               ))}
             </div>
@@ -77,9 +73,9 @@ export default function PricingPage() {
             <Info className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
             <p className="text-sm text-orange-700">
               <strong>Why this matters:</strong>{" "}
-              {lang === "en"
-                ? "Every other platform makes you call/chat before revealing prices. We're the only platform in India that publishes its full electrical rate card publicly."
-                : "हर दूसरा प्लेटफॉर्म कीमत बताने से पहले कॉल/चैट करवाता है। हम भारत के एकमात्र प्लेटफॉर्म हैं जो पूरा रेट कार्ड सार्वजनिक रूप से प्रकाशित करते हैं।"}
+              {hi
+                ? "हर दूसरा प्लेटफॉर्म कीमत बताने से पहले कॉल/चैट करवाता है। हम भारत के एकमात्र प्लेटफॉर्म हैं जो पूरा रेट कार्ड सार्वजनिक रूप से प्रकाशित करते हैं।"
+                : "Every other platform makes you call/chat before revealing prices. We're the only platform in India that publishes its full electrical rate card publicly."}
             </p>
           </div>
         </div>
@@ -95,7 +91,7 @@ export default function PricingPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={lang === "en" ? "Search services (e.g. fan, switch, MCB)..." : "सेवा खोजें (जैसे पंखा, स्विच, MCB)..."}
+                  placeholder={hi ? "सेवा खोजें (जैसे पंखा, स्विच, MCB)..." : "Search services (e.g. fan, switch, MCB)..."}
                   className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                 />
               </div>
@@ -106,7 +102,7 @@ export default function PricingPage() {
                   <div key={cat.category} className="bg-white rounded-2xl overflow-hidden border border-slate-100">
                     <div className="bg-slate-50 px-5 py-3 flex items-center justify-between">
                       <h3 className="font-bold text-slate-900">
-                        {lang === "en" ? cat.category : cat.category_hi}
+                        {hi ? cat.category_hi : cat.category}
                       </h3>
                       <span className="text-xs text-slate-400">{cat.items.length} services</span>
                     </div>
@@ -115,19 +111,19 @@ export default function PricingPage() {
                         <div key={item.name} className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
                           <div>
                             <p className="text-sm font-medium text-slate-900">
-                              {lang === "en" ? item.name : item.name_hi}
+                              {hi ? item.name_hi : item.name}
                             </p>
                             <p className="text-xs text-slate-400 mt-0.5">
-                              {lang === "hi" ? item.name : item.name_hi}
+                              {hi ? item.name : item.name_hi}
                             </p>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-orange-600 text-base">₹{item.price}</span>
                             <button
-                              onClick={() => addToCart(lang === "en" ? item.name : item.name_hi, item.price)}
+                              onClick={() => addToCart(item.name.toLowerCase().replace(/\s+/g, "_"), hi ? item.name_hi : item.name, item.price)}
                               className="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
                             >
-                              {lang === "en" ? "Add" : "जोड़ें"}
+                              {hi ? "जोड़ें" : "Add"}
                             </button>
                           </div>
                         </div>
@@ -142,12 +138,12 @@ export default function PricingPage() {
                 <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-blue-900 mb-1">
-                    {lang === "en" ? "About materials" : "सामग्री के बारे में"}
+                    {hi ? "सामग्री के बारे में" : "About materials"}
                   </p>
                   <p className="text-blue-700">
-                    {lang === "en"
-                      ? "All prices above are labour-only. If parts replacement is needed (switches, MCB, wire), your electrician will show you the exact material cost BEFORE buying. You approve first."
-                      : "ऊपर सभी कीमतें केवल श्रम की हैं। अगर पार्ट्स (स्विच, MCB, तार) बदलने की जरूरत हो, तो इलेक्ट्रीशियन खरीदने से पहले सटीक सामग्री लागत दिखाएगा। आप पहले मंजूरी देते हैं।"}
+                    {hi
+                      ? "ऊपर सभी कीमतें केवल श्रम की हैं। अगर पार्ट्स (स्विच, MCB, तार) बदलने की जरूरत हो, तो इलेक्ट्रीशियन खरीदने से पहले सटीक सामग्री लागत दिखाएगा। आप पहले मंजूरी देते हैं।"
+                      : "All prices above are labour-only. If parts replacement is needed (switches, MCB, wire), your electrician will show you the exact material cost BEFORE buying. You approve first."}
                   </p>
                 </div>
               </div>
@@ -160,7 +156,7 @@ export default function PricingPage() {
                   <div className="bg-slate-50 px-5 py-3 flex items-center justify-between">
                     <h3 className="font-bold text-slate-900 flex items-center gap-2">
                       <ShoppingCart className="w-4 h-4" />
-                      {lang === "en" ? "Your estimate" : "आपका अनुमान"}
+                      {hi ? "आपका अनुमान" : "Your estimate"}
                     </h3>
                     {cart.length > 0 && (
                       <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
@@ -171,15 +167,13 @@ export default function PricingPage() {
 
                   {cart.length === 0 ? (
                     <div className="px-5 py-8 text-center text-slate-400 text-sm">
-                      {lang === "en"
-                        ? "Add services to build your estimate"
-                        : "अनुमान बनाने के लिए सेवाएं जोड़ें"}
+                      {hi ? "अनुमान बनाने के लिए सेवाएं जोड़ें" : "Add services to build your estimate"}
                     </div>
                   ) : (
                     <div className="px-5 py-4 space-y-2">
                       {cart.map((item, i) => (
                         <div key={i} className="flex items-center justify-between">
-                          <span className="text-sm text-slate-700 flex-1 mr-2 leading-tight">{item.name}</span>
+                          <span className="text-sm text-slate-700 flex-1 mr-2 leading-tight">{item.serviceName}</span>
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-sm">₹{item.price}</span>
                             <button
@@ -194,19 +188,19 @@ export default function PricingPage() {
 
                       <div className="border-t pt-3 mt-3">
                         <div className="flex justify-between font-bold text-base">
-                          <span>{lang === "en" ? "Labour total" : "श्रम कुल"}</span>
+                          <span>{hi ? "श्रम कुल" : "Labour total"}</span>
                           <span className="text-orange-600">₹{total}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">
-                          {lang === "en" ? "+ materials if needed (approved by you)" : "+ सामग्री अगर जरूरी हो (आपकी मंजूरी से)"}
+                          {hi ? "+ सामग्री अगर जरूरी हो (आपकी मंजूरी से)" : "+ materials if needed (approved by you)"}
                         </p>
                       </div>
 
                       <Link
-                        href={`/booking?services=${cart.map((i) => i.name).join(",")}`}
+                        href="/booking"
                         className="mt-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
                       >
-                        {lang === "en" ? "Book these services" : "ये सेवाएं बुक करें"}
+                        {hi ? "ये सेवाएं बुक करें" : "Book these services"}
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
@@ -216,19 +210,19 @@ export default function PricingPage() {
                 {/* Trust callout */}
                 <div className="bg-green-50 rounded-xl p-4 text-sm">
                   <p className="font-semibold text-green-800 mb-1">
-                    {lang === "en" ? "Price guarantee" : "कीमत की गारंटी"}
+                    {hi ? "कीमत की गारंटी" : "Price guarantee"}
                   </p>
                   <p className="text-green-700">
-                    {lang === "en"
-                      ? "The price you see is the price you pay. If an electrician charges more, report it and get a full refund."
-                      : "जो कीमत आप देखते हैं, वही देते हैं। अगर इलेक्ट्रीशियन ज्यादा लेता है, रिपोर्ट करें और पूरा रिफंड पाएं।"}
+                    {hi
+                      ? "जो कीमत आप देखते हैं, वही देते हैं। अगर इलेक्ट्रीशियन ज्यादा लेता है, रिपोर्ट करें और पूरा रिफंड पाएं।"
+                      : "The price you see is the price you pay. If an electrician charges more, report it and get a full refund."}
                   </p>
                 </div>
 
                 {/* Comparison */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm">
                   <p className="font-semibold text-slate-900 mb-3">
-                    {lang === "en" ? "vs. other platforms" : "अन्य प्लेटफॉर्म से तुलना"}
+                    {hi ? "अन्य प्लेटफॉर्म से तुलना" : "vs. other platforms"}
                   </p>
                   <div className="space-y-2">
                     {[

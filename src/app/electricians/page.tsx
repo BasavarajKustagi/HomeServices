@@ -10,10 +10,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SkillLevel from "@/components/SkillLevel";
 import TrustBadge from "@/components/TrustBadge";
-import { Language, electricians } from "@/data/content";
+import { electricians } from "@/data/content";
+import { useApp } from "@/context/AppContext";
 
 export default function ElectriciansPage() {
-  const [lang, setLang] = useState<Language>("en");
+  const { state: { lang } } = useApp();
   const [search, setSearch] = useState("");
   const [filterAvailable, setFilterAvailable] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export default function ElectriciansPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar lang={lang} setLang={setLang} />
+      <Navbar />
 
       <div className="flex-1 pt-20">
         {/* Header */}
